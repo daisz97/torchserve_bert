@@ -1,0 +1,1 @@
+public void processSaslExchange(ConnectionInfo connectionInfo){	if (sasl.getRemoteMechanisms().length > 0) {	SaslMechanism mechanism=getSaslMechanism(sasl.getRemoteMechanisms());

@@ -90,6 +90,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             self.tokenizer = AutoTokenizer.from_pretrained(
                 self.setup_config["model_name"],
                 do_lower_case=self.setup_config["do_lower_case"],
+                use_fast=True
             )
 
         self.model.eval()

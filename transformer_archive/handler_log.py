@@ -15,6 +15,7 @@ import numpy as np
 import time
 from ts.torch_handler.base_handler import BaseHandler
 import re
+import string
 
 logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
@@ -189,6 +190,17 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
         return inferences, piece2word
 
+    def useful_string(self, s):
+        if s.istitle or s in string.punctuation:
+            return False
+        # punctuation、operator、build-in identifier
+        non_var = ['@', '=', '!', '.', '+', '-', '*', '/', '++', '–', '==', '!=', '|', '||', '&', '&&', '+=', '-=',
+                   '*=', '/=', '%=', '<<=', '>>=', '&=', 'ˆ=', '|=', '>', '<', '>=', '<=', ':', '%', 'ˆ', '?', '%', ' ',
+                   '<<', '<<<', '>>', '>>>', '...', '−>', 'instanceof']
+        if s in non_var:
+            return False
+        return True
+
     def postprocess(self, inference_output, piece2word):
         """Post Process Function converts the predicted response into Torchserve readable format.
         Args:
@@ -199,8 +211,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         print("shape of inference_output:", np.array(inference_output).shape)
         sentence = inference_output[0]
 
-        complete_word = []
-        complete_word_label = []
+        # complete_word = []
+        # complete_word_label = []
         complete_prediction = []
         res = []
         underline = False
@@ -220,16 +232,17 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                     underline = False
                     identifier += token
                 else:
-                    complete_word.append(identifier)
-                    complete_word_label.append(pred)
+                    # complete_word.append(identifier)
+                    # complete_word_label.append(pred)
                     complete_prediction.append([identifier, pred])
                     if pred == "Logging":
-                        res.append(identifier)
+                        if self.useful_string(identifier):
+                            res.append(identifier)
                     identifier = token
                     pred = label
                 pre = piece2word[i]
         logger.info("Complete word prediction:", complete_prediction)
-        return res
+        return [res]
 
     def handle(self, data, context):
         """Entry point for default handler. It takes the data from the input request and returns
@@ -262,4 +275,3 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         stop_time = time.time()
         metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
         return output
-        # return inference_output

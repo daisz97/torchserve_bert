@@ -196,7 +196,12 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         # punctuation、operator、build-in identifier
         non_var = ['@', '=', '!', '.', '+', '-', '*', '/', '++', '–', '==', '!=', '|', '||', '&', '&&', '+=', '-=',
                    '*=', '/=', '%=', '<<=', '>>=', '&=', 'ˆ=', '|=', '>', '<', '>=', '<=', ':', '%', 'ˆ', '?', '%', ' ',
-                   '<<', '<<<', '>>', '>>>', '...', '−>', 'instanceof']
+                   '<<', '<<<', '>>', '>>>', '...', '−>', 'instanceof', 'boolean', 'int', 'long', 'short', 'byte',
+                   'float', 'double', 'char', 'class', 'interface', 'if', 'else', 'do', 'while', 'for', 'switch',
+                   'case', 'default', 'break', 'continue', 'return', 'try', 'catch', 'finally', 'public', 'protected',
+                   'private', 'final', 'void', 'static', 'strict', 'abstract', 'transient', 'synchronized', 'volatile',
+                   'native', 'package', 'import', 'throw', 'throws', 'extends', 'implements', 'this', 'supper', 'new',
+                   'true', 'false', 'null', 'goto', 'const']
         if s in non_var:
             return False
         return True

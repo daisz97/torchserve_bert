@@ -12,6 +12,7 @@ from transformers import (
     AutoModelForTokenClassification,
 )
 import numpy as np
+import time
 from ts.torch_handler.base_handler import BaseHandler
 import re
 
@@ -229,4 +230,36 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 pre = piece2word[i]
         logger.info("Complete word prediction:", complete_prediction)
         return res
+
+    def handle(self, data, context):
+        """Entry point for default handler. It takes the data from the input request and returns
+           the predicted outcome for the input.
+
+        Args:
+            data (list): The input data that needs to be made a prediction request on.
+            context (Context): It is a JSON Object containing information pertaining to
+                               the model artefacts parameters.
+
+        Returns:
+            list : Returns a list of dictionary with the predicted response.
+        """
+
+        # It can be used for pre or post processing if needed as additional request
+        # information is available in context
+        start_time = time.time()
+
+        self.context = context
+        metrics = self.context.metrics
+
+        data_preprocess = self.preprocess(data)
+
+        if not self._is_explain():
+            output, pieces2word = self.inference(data_preprocess)
+            output = self.postprocess(output, pieces2word)
+        else:
+            output = self.explain_handle(data_preprocess, data)
+
+        stop_time = time.time()
+        metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
+        return output
         # return inference_output

@@ -230,7 +230,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             token = sentence[i][0]
             label = sentence[i][1]
             if piece2word[i] == pre:
-                identifier += token
+                identifier += token[2:]  # 这个时候token以##开头
             else:
                 if token == '_':
                     identifier += token
@@ -246,7 +246,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                         print(identifier)
                         if self.useful_string(identifier):
                             res.append(identifier)
-                    identifier = token[1:]  # 除了第一个token，其他的token之前都有一个空格（特殊字符）。
+                    identifier = token
                     pred = label
                 pre = piece2word[i]
         logger.info("Complete word prediction:", complete_prediction)
